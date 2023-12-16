@@ -7,13 +7,12 @@ type User struct {
 	Fullname  string    `gorm:"not null;" json:"full_name"`
 	Password  string    `gorm:"not null;" json:"-"`
 	Email     string    `gorm:"not null;" json:"email"`
-	Role      string    `gorm:"not null;default:'NonAdmin'" json:"role"`
+	Role      string    `gorm:"not null;default:'Admin'" json:"role"`
 	Phone     string    `json:"phone"`
 	Address   string    `gorm:"type:text" json:"address"`
 	BirthDate time.Time `json:"birth_date"`
 	Gender    string    `json:"gender"`
 	LastLogin time.Time `json:"last_login"`
-	Status    string    `gorm:"not null;default:'Active';" json:"status"`
 
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`

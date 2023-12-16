@@ -58,13 +58,11 @@ func Auth() gin.HandlerFunc {
 		userId := data["id"].(float64)
 		strUserId := strconv.FormatFloat(userId, 'f', -1, 64)
 
-		ctx.Set("user_id", strUserId)
+		ctx.Set("id", strUserId)
 		ctx.Set("name", data["name"])
 		ctx.Set("email", data["email"])
-		ctx.Set("division", data["division"])
-		ctx.Set("position", data["position"])
+		ctx.Set("role", data["role"])
 		ctx.Set("exp", data["exp"])
-		ctx.Set("exp_date", data["exp_date"])
 
 		if data["exp_date"] == nil {
 			ctx.AbortWithStatusJSON(401, gin.H{
@@ -76,7 +74,6 @@ func Auth() gin.HandlerFunc {
 
 		timeNow := time.Now()
 		expiredTime := data["exp_date"].(string)
-
 		parsed, _ := time.Parse(time.RFC3339, expiredTime)
 
 		if err != nil {
@@ -98,5 +95,18 @@ func Auth() gin.HandlerFunc {
 		}
 
 		ctx.Next()
+	}
+}
+
+func IsSuperAdmin() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		role := ctx.GetString("role")
+		if !helpers.IsSuperAdmin(role) {
+			ctx.AbortWithStatusJSON(401, gin.H{
+				"error":   "Unauthorized",
+				"message": helpers.ROLE_NOT_ALLOWED,
+			})
+			return
+		}
 	}
 }
