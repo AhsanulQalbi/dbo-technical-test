@@ -4,6 +4,7 @@ import (
 	"dbo-technical-test/helpers"
 	"dbo-technical-test/models"
 	"dbo-technical-test/params"
+	"fmt"
 	"time"
 
 	"dbo-technical-test/repositories"
@@ -52,7 +53,18 @@ func (userService *UserService) Login(request params.UserLogin) *params.Response
 	}
 }
 
-func (userservice *UserService) CreateUser(request params.CreateUser) *params.Response {
+func (userService *UserService) CreateUser(request params.CreateUser) *params.Response {
+	userCheck, err := userService.userRepo.ListByEmail(request.Email)
+	if len(*userCheck) != 0 {
+		return helpers.HandleErrorService(http.StatusBadRequest, fmt.Sprintf("email %s already registered. ", request.Email))
+	}
+
+	dateBirth, err := time.Parse("2006-01-02", request.BirthDate)
+	if err != nil {
+		fmt.Println("Error parsing date:", err)
+		// return helpers.HandleErrorService(http.StatusBadRequest, err.Error())
+	}
+
 	user := models.User{
 		Fullname:  request.Fullname,
 		Password:  helpers.HashPassword(request.Password),
@@ -60,13 +72,13 @@ func (userservice *UserService) CreateUser(request params.CreateUser) *params.Re
 		Role:      request.Role,
 		Phone:     request.Phone,
 		Address:   request.Address,
-		BirthDate: request.BirthDate,
+		BirthDate: dateBirth,
 		Gender:    request.Gender,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
 
-	userData, err := userservice.userRepo.CreateUser(user)
+	userData, err := userService.userRepo.CreateUser(user)
 	if err != nil {
 		return helpers.HandleErrorService(http.StatusBadRequest, err.Error())
 	}

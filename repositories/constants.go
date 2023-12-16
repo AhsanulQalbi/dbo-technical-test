@@ -6,7 +6,7 @@ const (
 	// WHERE_ASSIGNEE_ID   = "assignee_id = ?"
 	// WHERE_MANPOWER_ID   = "manpower_id = ?"
 	// WHERE_CLEAR_PIC_ID  = "clear_pic_id = ?"
-	// WHERE_ID            = "id = ?"
+	WHERE_ID = "id = ?"
 	// WHERE_TRIP_ID       = "trip_id = ?"
 	// WHERE_RESIGN_ID     = "resign_id = ?"
 	// WHERE_TRAINING_ID   = "training_id = ?"

@@ -22,18 +22,35 @@ func NewUserController(service *services.UserService, validatorHelpers *helpers.
 	}
 }
 
-func (userController *UserController) CreateUser(c *gin.Context) {
-	var req params.CreateUser
-
+func (userController *UserController) Login(c *gin.Context) {
+	var req params.UserLogin
 	err := c.ShouldBind(&req)
-
 	if err != nil {
 		helpers.HandleErrorController(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	err = userController.validatorHelpers.Validate.Struct(req)
+	if err != nil {
+		validationMessage := userController.validatorHelpers.BuildAndGetValidationMessage(err)
 
+		helpers.HandleErrorController(c, http.StatusBadRequest, validationMessage)
+		return
+	}
+
+	result := userController.userService.Login(req)
+	c.JSON(result.Status, result.Payload)
+}
+
+func (userController *UserController) CreateUser(c *gin.Context) {
+	var req params.CreateUser
+	err := c.ShouldBind(&req)
+	if err != nil {
+		helpers.HandleErrorController(c, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	err = userController.validatorHelpers.Validate.Struct(req)
 	if err != nil {
 		validationMessage := userController.validatorHelpers.BuildAndGetValidationMessage(err)
 

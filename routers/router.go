@@ -1,4 +1,4 @@
-package router
+package routers
 
 import (
 	"dbo-technical-test/controllers"
@@ -27,13 +27,14 @@ func RouterConfig(db *gorm.DB) *gin.Engine {
 	userController := controllers.NewUserController(userService, validationService)
 	mainRouter := route.Group("/v1")
 	{
+		mainRouter.POST("/login", userController.Login)
 		authorized := mainRouter.Group("/")
 		authorized.Use(middlewares.Auth())
 		{
 			superadmin := authorized.Group("/")
 			superadmin.Use(middlewares.IsSuperAdmin())
 			{
-				superadmin.POST("/create-admin-user", userController.CreateUser)
+				superadmin.POST("/create-user", userController.CreateUser)
 			}
 		}
 	}
