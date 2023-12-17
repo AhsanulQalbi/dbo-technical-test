@@ -25,12 +25,24 @@ func RouterConfig(db *gorm.DB) *gin.Engine {
 	userRepo := repositories.NewUserRepo(db, *repoHelpers)
 	userService := services.NewUserService(*userRepo)
 	userController := controllers.NewUserController(userService, validationService)
+
+	//Customer Repo
+	customerRepo := repositories.NewCustomerRepo(db, *repoHelpers)
+	customerService := services.NewCustomerService(*customerRepo)
+	customerController := controllers.NewCustomerController(*customerService, validationService)
+
 	mainRouter := route.Group("/v1")
 	{
 		mainRouter.POST("/login", userController.Login)
 		authorized := mainRouter.Group("/")
 		authorized.Use(middlewares.Auth())
 		{
+			authorized.GET("/customer", customerController.GetCustomerList)
+			authorized.GET("/customer/:customerId", customerController.GetCustomerById)
+			authorized.POST("/customer", customerController.CreateCustomer)
+			authorized.PUT("/customer/:customerId", customerController.UpdateCustomer)
+			authorized.DELETE("/customer/:customerId", customerController.DeleteCustomer)
+
 			superadmin := authorized.Group("/")
 			superadmin.Use(middlewares.IsSuperAdmin())
 			{
