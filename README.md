@@ -5,4 +5,5 @@
 
 ## run server :
 ##  - create .env file in root folder based on .env.example
+##  - create local postgres database based on .env
 ##  - (root folder) go run main.go
