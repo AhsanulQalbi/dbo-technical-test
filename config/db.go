@@ -29,8 +29,12 @@ func ConnectDB() *gorm.DB {
 	if err == nil && db.Migrator().HasTable(&models.User{}) {
 		if err := db.Where("email", "superadmin@dbo.com").First(&models.User{}).Error; errors.Is(err, gorm.ErrRecordNotFound) {
 			user := []*models.User{
-				{Fullname: "superadmin", Password: "$2a$08$0WveZ9.JfFGSnf9H5SBgfev8gJ3SbeqDhLexLQkks/WmYnPxTZLnS", Email: "superadmin@dbo.com",
-					Role: "Super Admin", Address: "Tangerang"},
+				{
+					Fullname: "superadmin",
+					Password: "$2a$08$0WveZ9.JfFGSnf9H5SBgfev8gJ3SbeqDhLexLQkks/WmYnPxTZLnS",
+					Email:    "superadmin@dbo.com",
+					Role:     "Super Admin",
+				},
 			}
 			if err := db.Create(&user).Error; err != nil {
 				log.Errorf("[seed super admin] err: %s", err)

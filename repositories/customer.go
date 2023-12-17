@@ -64,3 +64,9 @@ func (customerRepo *CustomerRepo) DeleteCustomer(customerId int) error {
 	err := customerRepo.db.Where(WHERE_ID, customerId).Delete(&customer).Error
 	return err
 }
+
+func (customerRepo *CustomerRepo) CheckEmail(email string) (*[]models.Customer, error) {
+	var customer *[]models.Customer
+	err := customerRepo.db.Where("email = ?", email).Find(&customer).Error
+	return customer, err
+}

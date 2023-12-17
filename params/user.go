@@ -1,14 +1,10 @@
 package params
 
 type CreateUser struct {
-	Fullname  string `json:"full_name"`
-	Password  string `json:"password"`
-	Email     string `json:"email"`
-	Role      string `json:"role"`
-	Phone     string `json:"phone"`
-	Address   string `json:"address"`
-	BirthDate string `json:"birth_date"`
-	Gender    string `json:"gender"`
+	Fullname string `json:"full_name"`
+	Password string `json:"password"`
+	Email    string `json:"email"`
+	Role     string `json:"role"`
 }
 
 type Response struct {

@@ -26,7 +26,7 @@ func (userRepo *UserRepo) FindByEmail(email string) (*models.User, error) {
 	return &user, err
 }
 
-func (userRepo *UserRepo) ListByEmail(email string) (*[]models.User, error) {
+func (userRepo *UserRepo) CheckEmail(email string) (*[]models.User, error) {
 	var user []models.User
 	err := userRepo.db.Where("email = ?", email).Find(&user).Error
 	return &user, err

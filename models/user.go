@@ -8,10 +8,6 @@ type User struct {
 	Password  string    `gorm:"not null;" json:"-"`
 	Email     string    `gorm:"unique;not null;" json:"email"`
 	Role      string    `gorm:"not null;default:'Admin'" json:"role"`
-	Phone     string    `json:"phone"`
-	Address   string    `gorm:"type:text" json:"address"`
-	BirthDate time.Time `json:"birth_date"`
-	Gender    string    `json:"gender"`
 	LastLogin time.Time `json:"last_login"`
 
 	CreatedAt time.Time `json:"created_at"`

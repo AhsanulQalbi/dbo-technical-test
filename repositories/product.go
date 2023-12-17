@@ -7,63 +7,61 @@ import (
 	"gorm.io/gorm"
 )
 
-type OrderRepo struct {
+type ProductRepo struct {
 	db          *gorm.DB
 	repoHelpers RepoHelpers
 }
 
-func NewOrderRepo(db *gorm.DB, repoHelpers RepoHelpers) *OrderRepo {
-	return &OrderRepo{db, repoHelpers}
+func NewProductRepo(db *gorm.DB, repoHelpers RepoHelpers) *ProductRepo {
+	return &ProductRepo{db, repoHelpers}
 }
 
-func (orderRepo *OrderRepo) CreateOrder(order models.Order) (*models.Order, error) {
-	err := orderRepo.db.Create(&order).Error
-	return &order, err
+func (productRepo *ProductRepo) CreateProduct(product models.Product) (*models.Product, error) {
+	err := productRepo.db.Create(&product).Error
+	return &product, err
 }
 
-func (orderRepo *OrderRepo) GetOrderList(queries *params.Query) ([]models.Order, int64, error) {
+func (productRepo *ProductRepo) GetProductList(queries *params.Query) ([]params.ListProduct, int64, error) {
 	var (
-		orders []models.Order
-		count  int64
+		products []params.ListProduct
+		count    int64
 	)
-	err := orderRepo.db.
+	err := productRepo.db.
 		Order(NAME_ASC).
-		Scopes(orderRepo.repoHelpers.Paginate(queries.Page, queries.Size)).
-		Preload("Customer").
-		Preload("Product").
-		Where("lower(order_name) ILIKE ?", "%"+queries.Search+"%").
-		Find(&orders).
+		Scopes(productRepo.repoHelpers.Paginate(queries.Page, queries.Size)).
+		Where("lower(name) ILIKE ?", "%"+queries.Search+"%").
+		Model(models.Product{}).
+		Find(&products).
 		Error
 
 	if err != nil {
-		return orders, count, err
+		return products, count, err
 	}
 
-	err = orderRepo.db.
-		Model(&orders).
-		Where("lower(order_name) ILIKE ?", "%"+queries.Search+"%").
+	err = productRepo.db.
+		Model(&products).
+		Where("lower(name) ILIKE ?", "%"+queries.Search+"%").
 		Count(&count).
 		Error
 
-	return orders, count, err
+	return products, count, err
 }
 
-func (orderRepo *OrderRepo) GetOrderById(id int) (*models.Order, error) {
-	var order models.Order
-	err := orderRepo.db.Preload("Customer").
-		Preload("Product").Where(WHERE_ID, id).First(&order).Error
-	return &order, err
+func (productRepo *ProductRepo) GetProductById(id int) (*models.Product, error) {
+	var product models.Product
+	err := productRepo.db.Where(WHERE_ID, id).First(&product).Error
+	return &product, err
 }
 
-func (orderRepo *OrderRepo) UpdateOrder(orderId int, order models.Order) (*models.Order, error) {
-	var orderRes models.Order
-	err := orderRepo.db.Where(WHERE_ID, orderId).Updates(&order).
-		Find(&orderRes).Error
-	return &orderRes, err
+func (productRepo *ProductRepo) UpdateProduct(productId int, product models.Product) (*models.Product, error) {
+	var productRes models.Product
+	err := productRepo.db.Where(WHERE_ID, productId).Updates(&product).
+		Find(&productRes).Error
+	return &productRes, err
 }
 
-func (orderRepo *OrderRepo) DeleteOrder(orderId int) error {
-	var order models.Order
-	err := orderRepo.db.Where(WHERE_ID, orderId).Delete(&order).Error
+func (productRepo *ProductRepo) DeleteProduct(productId int) error {
+	var product models.Product
+	err := productRepo.db.Where(WHERE_ID, productId).Delete(&product).Error
 	return err
 }
