@@ -155,7 +155,7 @@ func (customerService *CustomerService) DeleteCustomer(customerId int) *params.R
 	_, err := customerService.customerRepo.GetCustomerById(customerId)
 	if err != nil {
 		log.Errorln("ERROR:", err)
-		return helpers.HandleErrorService(http.StatusInternalServerError, fmt.Sprintf("Error on get customer info: [%s]", err.Error()))
+		return helpers.HandleErrorService(http.StatusBadRequest, fmt.Sprintf("Error on get customer info: [%s]", err.Error()))
 
 	}
 

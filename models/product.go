@@ -1,6 +1,10 @@
 package models
 
-import "time"
+import (
+	"time"
+
+	"gorm.io/gorm"
+)
 
 type Product struct {
 	Id          int    `gorm:"not null;uniqueIndex;primaryKey;" json:"id"`
@@ -11,7 +15,7 @@ type Product struct {
 	ImageUrl    string `json:"image_url"`
 	Stock       int    `gorm:"not null;default:0" json:"stock"`
 
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-	DeletedAt time.Time `json:"deleted_at"`
+	CreatedAt time.Time      `json:"created_at"`
+	UpdatedAt time.Time      `json:"updated_at"`
+	DeletedAt gorm.DeletedAt `json:"deleted_at"`
 }

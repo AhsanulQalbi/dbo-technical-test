@@ -22,27 +22,40 @@ func (orderRepo *OrderRepo) CreateOrder(order models.Order) (*models.Order, erro
 }
 
 func (orderRepo *OrderRepo) GetOrderList(queries *params.Query) ([]models.Order, int64, error) {
+	if queries.Page == 0 {
+		queries.Page = 1
+	}
+
+	if queries.Size == 0 {
+		queries.Size = 10
+	}
 	var (
 		orders []models.Order
 		count  int64
 	)
-	err := orderRepo.db.
-		Order(NAME_ASC).
+
+	query := orderRepo.db.
+		Order(ORDER_NAME_ASC).
 		Scopes(orderRepo.repoHelpers.Paginate(queries.Page, queries.Size)).
 		Preload("Customer").
-		Preload("Product").
-		Where("lower(order_name) ILIKE ?", "%"+queries.Search+"%").
-		Find(&orders).
-		Error
+		Preload("Product")
+
+	if queries.Search != "" {
+		query = query.Where("lower(order_name) ILIKE ?", "%"+queries.Search+"%")
+	}
+	err := query.Find(&orders).Error
 
 	if err != nil {
 		return orders, count, err
 	}
 
-	err = orderRepo.db.
-		Model(&orders).
-		Where("lower(order_name) ILIKE ?", "%"+queries.Search+"%").
-		Count(&count).
+	query = orderRepo.db.
+		Model(&orders)
+
+	if queries.Search != "" {
+		query = query.Where("lower(order_name) ILIKE ?", "%"+queries.Search+"%")
+	}
+	err = query.Count(&count).
 		Error
 
 	return orders, count, err

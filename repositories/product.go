@@ -22,28 +22,40 @@ func (productRepo *ProductRepo) CreateProduct(product models.Product) (*models.P
 }
 
 func (productRepo *ProductRepo) GetProductList(queries *params.Query) ([]params.ListProduct, int64, error) {
+	if queries.Page == 0 {
+		queries.Page = 1
+	}
+
+	if queries.Size == 0 {
+		queries.Size = 10
+	}
+
 	var (
 		products []params.ListProduct
 		count    int64
 	)
-	err := productRepo.db.
+
+	query := productRepo.db.
 		Order(NAME_ASC).
-		Scopes(productRepo.repoHelpers.Paginate(queries.Page, queries.Size)).
-		Where("lower(name) ILIKE ?", "%"+queries.Search+"%").
-		Model(models.Product{}).
-		Find(&products).
-		Error
+		Scopes(productRepo.repoHelpers.Paginate(queries.Page, queries.Size))
+
+	if queries.Search != "" {
+		query = query.Where("lower(name) ILIKE ?", "%"+queries.Search+"%")
+	}
+	err := query.Model(models.Product{}).Find(&products).Error
 
 	if err != nil {
 		return products, count, err
 	}
 
-	err = productRepo.db.
-		Model(&products).
-		Where("lower(name) ILIKE ?", "%"+queries.Search+"%").
-		Count(&count).
-		Error
+	query = productRepo.db.
+		Model(models.Product{})
 
+	if queries.Search != "" {
+		query = query.Where("lower(name) ILIKE ?", "%"+queries.Search+"%")
+	}
+	err = query.Count(&count).
+		Error
 	return products, count, err
 }
 

@@ -34,13 +34,13 @@ func (orderService *OrderService) CreateOrder(request params.CreateOrder) *param
 	productInfo, err := orderService.productRepo.GetProductById(request.ProductID)
 	if err != nil {
 		log.Errorln("ERROR:", err)
-		return helpers.HandleErrorService(http.StatusInternalServerError, fmt.Sprintf("Error on get product info: [%s]", err.Error()))
+		return helpers.HandleErrorService(http.StatusBadRequest, fmt.Sprintf("Error on get product info: [%s]", err.Error()))
 	}
 
 	_, err = orderService.customerRepo.GetCustomerById(request.CustomerID)
 	if err != nil {
 		log.Errorln("ERROR:", err)
-		return helpers.HandleErrorService(http.StatusInternalServerError, fmt.Sprintf("Error on get customer info: [%s]", err.Error()))
+		return helpers.HandleErrorService(http.StatusBadRequest, fmt.Sprintf("Error on get customer info: [%s]", err.Error()))
 	}
 
 	orderDate, err := time.Parse("2006-01-02", request.OrderDate)
@@ -82,6 +82,8 @@ func (orderService *OrderService) CreateOrder(request params.CreateOrder) *param
 	if err != nil {
 		return helpers.HandleErrorService(http.StatusBadRequest, err.Error())
 	}
+	orderData.Product = nil
+	orderData.Customer = nil
 
 	return &params.Response{
 		Status:  http.StatusCreated,

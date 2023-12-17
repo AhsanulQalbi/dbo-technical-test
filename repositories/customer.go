@@ -3,6 +3,7 @@ package repositories
 import (
 	"dbo-technical-test/models"
 	"dbo-technical-test/params"
+	"fmt"
 
 	"gorm.io/gorm"
 )
@@ -22,25 +23,40 @@ func (customerRepo *CustomerRepo) CreateCustomer(customer models.Customer) (*mod
 }
 
 func (customerRepo *CustomerRepo) GetCustomerList(queries *params.Query) ([]models.Customer, int64, error) {
+	if queries.Page == 0 {
+		queries.Page = 1
+	}
+
+	if queries.Size == 0 {
+		queries.Size = 10
+	}
+
+	fmt.Println(queries.Search)
+
 	var (
 		customers []models.Customer
 		count     int64
 	)
-	err := customerRepo.db.
-		Order(NAME_ASC).
-		Scopes(customerRepo.repoHelpers.Paginate(queries.Page, queries.Size)).
-		Where("lower(fullname) ILIKE ?", "%"+queries.Search+"%").
-		Find(&customers).
-		Error
+	query := customerRepo.db.
+		Order(FULLNAME_ASC).
+		Scopes(customerRepo.repoHelpers.Paginate(queries.Page, queries.Size))
+
+	if queries.Search != "" {
+		query = query.Where("lower(fullname) ILIKE ?", "%"+queries.Search+"%")
+	}
+	err := query.Find(&customers).Error
 
 	if err != nil {
 		return customers, count, err
 	}
 
-	err = customerRepo.db.
-		Model(&customers).
-		Where("lower(fullname) ILIKE ?", "%"+queries.Search+"%").
-		Count(&count).
+	query = customerRepo.db.
+		Model(&customers)
+
+	if queries.Search != "" {
+		query = query.Where("lower(fullname) ILIKE ?", "%"+queries.Search+"%")
+	}
+	err = query.Count(&count).
 		Error
 
 	return customers, count, err

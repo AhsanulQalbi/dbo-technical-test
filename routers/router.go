@@ -31,6 +31,16 @@ func RouterConfig(db *gorm.DB) *gin.Engine {
 	customerService := services.NewCustomerService(*customerRepo)
 	customerController := controllers.NewCustomerController(*customerService, validationService)
 
+	//Product Repo
+	productRepo := repositories.NewProductRepo(db, *repoHelpers)
+	productService := services.NewProductService(*productRepo)
+	productController := controllers.NewProductController(*productService, validationService)
+
+	//Order Repo
+	orderRepo := repositories.NewOrderRepo(db, *repoHelpers)
+	orderService := services.NewOrderService(*orderRepo, *productRepo, *customerRepo)
+	orderController := controllers.NewOrderController(*orderService, validationService)
+
 	mainRouter := route.Group("/v1")
 	{
 		mainRouter.POST("/login", userController.Login)
@@ -42,6 +52,18 @@ func RouterConfig(db *gorm.DB) *gin.Engine {
 			authorized.POST("/customer", customerController.CreateCustomer)
 			authorized.PUT("/customer/:customerId", customerController.UpdateCustomer)
 			authorized.DELETE("/customer/:customerId", customerController.DeleteCustomer)
+
+			authorized.GET("/product", productController.GetProductList)
+			authorized.GET("/product/:productId", productController.GetProductById)
+			authorized.POST("/product", productController.CreateProduct)
+			authorized.PUT("/product/:productId", productController.UpdateProduct)
+			authorized.DELETE("/product/:productId", productController.DeleteProduct)
+
+			authorized.GET("/order", orderController.GetOrderList)
+			authorized.GET("/order/:orderId", orderController.GetOrderById)
+			authorized.POST("/order", orderController.CreateOrder)
+			authorized.PUT("/order/:orderId", orderController.UpdateOrder)
+			authorized.DELETE("/order/:orderId", orderController.DeleteOrder)
 
 			superadmin := authorized.Group("/")
 			superadmin.Use(middlewares.IsSuperAdmin())
