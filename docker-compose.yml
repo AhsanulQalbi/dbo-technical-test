@@ -17,12 +17,3 @@ services:
       - "8000:8000"
     depends_on:
       - postgres
-    environment:
-      - DB_PORT:5432
-      - DB_HOST:localhost
-      - DB_USER:postgres
-      - DB_PASSWORD:password
-      - DB_NAME:dbo_technical_test
-      - APP_PORT:localhost:8000
-      - APP_ENV:development
-      - SECRET_KEY:TechnicalTest
